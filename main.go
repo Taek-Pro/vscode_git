@@ -19,7 +19,3 @@ func sumFunc(iValue ...int) int {
 
 	return iResult
 }
-
-func Result(iValue ...int) string {
-
-}
