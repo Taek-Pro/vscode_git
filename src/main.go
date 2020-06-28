@@ -1,21 +1,41 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"runtime"
+	"sync"
+)
 
-func main() {
-	iResult := sumFunc(1, 2, 3, 4) //:= 은 자료형을 선언하지 않아도 된다.
-
-	fmt.Println("Result : ")
-	fmt.Println(iResult)
+type GROBAL_DATA struct {
+	nResult int
+	mutex   sync.RWMutex
 }
 
-func sumFunc(iValue ...int) int {
-	var iResult int = 0
-	iResult = 0
+func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU()) // All CPU Use
 
-	for _, i := range iValue {
-		iResult += i
+	var mainData = new(GROBAL_DATA)
+
+	for i := 0; i < 100; i++ {
+		go AddResult(mainData, 1)
+		go PrintResult(mainData)
 	}
 
-	return iResult
+	fmt.Scanln()
+	fmt.Printf("MainResult : %d\n", mainData.nResult)
+
+	return
+}
+
+func AddResult(mainData *GROBAL_DATA, nValue int) {
+	mainData.mutex.Lock()
+	mainData.nResult += nValue
+
+	mainData.mutex.Unlock()
+}
+
+func PrintResult(mainData *GROBAL_DATA) {
+	mainData.mutex.RLock()
+	fmt.Printf("Result : %d\n", mainData.nResult)
+	mainData.mutex.RUnlock()
 }
